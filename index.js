@@ -35,7 +35,7 @@ if (!stripeKey) {
   );
   process.exit(1);
 }
-const stripe = new stripe(stripeKey);
+
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
