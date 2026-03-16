@@ -12,7 +12,7 @@ const app = express();
 
 app.use(express.json({ limit: '50mb', extended: true }));
 const db = mysql.createPool({
-  host: process.env.MYSQLHOST, 
+  host: process.env.MYSQLHOST || process.env.DATABASE_HOST, 
   user: process.env.MYSQLUSER || 'root',
   password: process.env.MYSQLPASSWORD || 'ojWgbPVLZXpBTWWAcdwKDZlXlXOsyriD',
   database: process.env.MYSQLDATABASE || 'railway',
