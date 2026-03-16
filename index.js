@@ -557,7 +557,7 @@ app.post("/dobleAutenticacion", async (req, res) => {
       [resetCodigo, email],
     );
 
-    console.log("hola")
+    console.log("patatas")
 
     let transporter = nodemailer.createTransport({
       service: "gmail",
