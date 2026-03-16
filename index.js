@@ -15,7 +15,7 @@ const db = mysql.createPool({
   host: process.env.MYSQLHOST || process.env.DATABASE_HOST, 
   user: process.env.MYSQLUSER || 'root',
   password: process.env.MYSQLPASSWORD || 'ojWgbPVLZXpBTWWAcdwKDZlXlXOsyriD',
-  database: process.env.MYSQLDATABASE || 'railway',
+  database: process.env.MYSQL_DATABASE || 'railway',
   port: Number(process.env.MYSQLPORT) || 50769,})
 db.getConnection()
   .then(conn => {

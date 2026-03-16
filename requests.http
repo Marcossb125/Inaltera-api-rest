@@ -1,4 +1,4 @@
-GET inaltera-api-rest-production.up.railway.app/users HTTP/1.1
+GET http://inaltera-api-rest-production.up.railway.app/users HTTP/1.1
 
 ###
 
