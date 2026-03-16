@@ -2,6 +2,14 @@ GET http://inaltera-api-rest-production.up.railway.app/users HTTP/1.1
 
 ###
 
+POST http://inaltera-api-rest-production.up.railway.app/dobleAutenticacion HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "marcossbarja@gmail.com"
+}
+
+
 GET http://localhost:3000/users/2 HTTP/1.1
 
 ###
