@@ -557,7 +557,7 @@ app.post("/dobleAutenticacion", async (req, res) => {
       [resetCodigo, email],
     );
 
-    console.log("patatas")
+    console.log("tomates")
 
     let transporter = nodemailer.createTransport({
       service: "gmail",
@@ -796,6 +796,14 @@ app.post("/recuperar_contrasena", async (req, res) => {
       subject: "Recuperación de contraseña",
       html: htmlCambiarContraseña,
     });
+
+    const info = await transporter.sendMail({
+  from: "marcossbarja@gmail.com",
+  to: email,
+  subject: "codigo de autenticacion",
+  html: htmlCodigo,
+});
+console.log("Email enviado con éxito: ", info.messageId);
 
     res.status(200).json({ email });
   } catch (err) {
