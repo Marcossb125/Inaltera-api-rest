@@ -27,7 +27,7 @@ db.getConnection()
 
 
 
-const stripeKey = process.env.STRIPE_KEY || process.env.STRIPE_SECRET_KEY || process.env.STRIPE_API_KEY;
+const stripeKey = 'sk_test_51T40IrKB99iHhiNSXKbCkeBdVhpromujKxmLfIGpty0lFmWWnyVM3ngtP8kzXAlygkob7COGcMRTHnvB3ctYTCTH00vYfjpobN'
 if (!stripeKey) {
   console.error(
     'Missing Stripe API key. Set STRIPE_KEY, STRIPE_SECRET_KEY, or STRIPE_API_KEY in your environment or .env file.'
