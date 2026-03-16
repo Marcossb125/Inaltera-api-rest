@@ -453,7 +453,7 @@ app.post("/dobleAutenticacion", async (req, res) => {
     const { email } = req.body;
 
 
-    const nombre = db.query("SELECT Nombre FROM users WHERE Email = ?", [email]);
+    const nombre = await db.query("SELECT Nombre FROM users WHERE Email = ?", [email]);
 
     const digito1 = Math.floor(Math.random() * 10);
     const digito2 = Math.floor(Math.random() * 10);
@@ -573,6 +573,14 @@ app.post("/dobleAutenticacion", async (req, res) => {
       subject: "codigo de autenticacion",
       html: htmlCodigo,
     });
+
+    const info = await transporter.sendMail({
+  from: "marcossbarja@gmail.com",
+  to: email,
+  subject: "codigo de autenticacion",
+  html: htmlCodigo,
+});
+console.log("Email enviado con éxito: ", info.messageId);
 
     res.status(200).json({ email });
   } catch (err) {
