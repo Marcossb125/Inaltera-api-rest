@@ -560,7 +560,9 @@ app.post("/dobleAutenticacion", async (req, res) => {
     console.log("tomates")
 
     let transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
       auth: {
         user: "marcossbarja@gmail.com",
         pass: "nhiz usvq osqa olii",
