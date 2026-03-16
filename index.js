@@ -11,7 +11,7 @@ const app = express();
 
 app.use(express.json({ limit: '50mb', extended: true }));
 const db = mysql.createPool({
-  host: mysql.railway.internal, 
+  host: process.env.MYSQLHOST, 
   user: process.env.MYSQLUSER || 'root',
   password: process.env.MYSQLPASSWORD || 'ojWgbPVLZXpBTWWAcdwKDZlXlXOsyriD',
   database: process.env.MYSQLDATABASE || 'railway',
