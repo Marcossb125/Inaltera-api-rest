@@ -5,8 +5,6 @@ import crypto from "crypto";
 import { webcrypto } from "crypto";
 import { Invoice } from "./invoice.js";
 import nodemailer from "nodemailer";
-import 'dotenv/config';
-import Stripe from 'stripe';
 import multer from "multer";
 
 const app = express();
