@@ -567,13 +567,6 @@ app.post("/dobleAutenticacion", async (req, res) => {
       },
     });
 
-    await transporter.sendMail({
-      from: "marcossbarja@gmail.com",
-      to: email,
-      subject: "codigo de autenticacion",
-      html: htmlCodigo,
-    });
-
     const info = await transporter.sendMail({
   from: "marcossbarja@gmail.com",
   to: email,
@@ -797,12 +790,7 @@ app.post("/recuperar_contrasena", async (req, res) => {
       html: htmlCambiarContraseña,
     });
 
-    const info = await transporter.sendMail({
-  from: "marcossbarja@gmail.com",
-  to: email,
-  subject: "codigo de autenticacion",
-  html: htmlCodigo,
-});
+   
 console.log("Email enviado con éxito: ", info.messageId);
 
     res.status(200).json({ email });
