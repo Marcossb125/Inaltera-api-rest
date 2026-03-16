@@ -452,7 +452,6 @@ app.post("/dobleAutenticacion", async (req, res) => {
   try {
     const { email } = req.body;
 
-    console.log("hola")
 
     const nombre = db.query("SELECT Nombre FROM users WHERE Email = ?", [email]);
 
@@ -557,6 +556,8 @@ app.post("/dobleAutenticacion", async (req, res) => {
       "UPDATE users SET código = ? WHERE Email = ?",
       [resetCodigo, email],
     );
+
+    console.log("hola")
 
     let transporter = nodemailer.createTransport({
       service: "gmail",

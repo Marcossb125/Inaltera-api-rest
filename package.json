@@ -16,11 +16,13 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.6",
+    "crypto": "^1.0.1",
     "express": "^5.2.1",
     "multer": "^2.1.1",
     "mysql2": "^3.20.0",
     "nodemailer": "^8.0.2",
-    "stripe": "^20.4.1"
+    "stripe": "^20.4.1",
+    "webcrypto": "^0.1.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
