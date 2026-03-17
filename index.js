@@ -800,7 +800,7 @@ app.post("/users/register", async (req, res) => {
       return res.status(400).json({ error: "El email ya está registrado" });
     }
     const [result] = await db.query(
-      "INSERT INTO users (Email, Password, Nombre) VALUES (?, ?, ?)",
+      "INSERT INTO users (Email, Password, Nombre,) VALUES (?, ?, ?)",
       [email, hashedPassword, nombre],
     );
     const [company] = await db.query(
@@ -1023,6 +1023,7 @@ app.put("/companies/:id_company/clientes/:id", async (req, res) => {
 app.put("/invoices/hashFactura/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("holita")
     const [data] = await db.query(
       "SELECT Id_company, Id_cliente, Fecha, Tipo, Numero, Total, Estado, FormaPago, ClienteNif, ClienteDireccion, ClienteNombre, Observaciones FROM invoices where Id = ?",
       [id],
