@@ -458,9 +458,6 @@ app.post("/dobleAutenticacion", async (req, res) => {
   try {
     const { email } = req.body;
 
-
-    const nombre = await db.query("SELECT Nombre FROM users WHERE Email = ?", [email]);
-
     const digito1 = Math.floor(Math.random() * 10);
     const digito2 = Math.floor(Math.random() * 10);
     const digito3 = Math.floor(Math.random() * 10);
@@ -571,7 +568,6 @@ app.post("/dobleAutenticacion", async (req, res) => {
       subject: 'Autentiación en dos pasos',
       html: htmlCodigo
     });
-    console.log("Email enviado con éxito: ", info.messageId);
 
     res.status(200).json({ email });
   } catch (err) {
