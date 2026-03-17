@@ -462,6 +462,126 @@ app.post("/dobleAutenticacion", async (req, res) => {
   try {
     const { email } = req.body;
 
+
+    const nombre = await db.query("SELECT Nombre FROM users WHERE Email = ?", [email]);
+
+    const digito1 = Math.floor(Math.random() * 10);
+    const digito2 = Math.floor(Math.random() * 10);
+    const digito3 = Math.floor(Math.random() * 10);
+    const digito4 = Math.floor(Math.random() * 10);
+    const digito5 = Math.floor(Math.random() * 10);
+
+    const resetCodigo = `${digito1}${digito2}${digito3}${digito4}${digito5}`;
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetLink = `http://localhost:8080/verificacionDosPasos?token=${resetToken}`;
+
+    const htmlCodigo = `<!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+          body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+              Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica', Arial, sans-serif;
+            background-color: #f5f5f7;
+            color: #0f172a;
+          }
+          .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+            padding: 24px;
+          }
+          .header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+          }
+          .text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #475569;
+            margin-bottom: 18px;
+          }
+          .code {
+            display: inline-block;
+            width: 100%;
+            max-width: 260px;
+            padding: 16px 18px;
+            margin: 0 auto 18px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0ea5e9, #22c55e);
+            color: #fff;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            text-align: center;
+          }
+          .footer {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.4;
+          }
+          .button {
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 10px;
+            background: #0ea5e9;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+          }
+          @media (max-width: 480px) {
+            .container {
+              margin: 24px 12px;
+              padding: 18px;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">Código de verificación</div>
+          <div class="text">
+            Utiliza el siguiente código de 5 dígitos para entrar a tu cuenta.
+          </div>
+          <div class="code">${resetCodigo}</div>
+          <div class="text">
+            Si no solicitaste este código, puedes ignorar este correo. El código expirará en breve.
+          </div>
+          <a class="button" href="${resetLink}">Ir a la página de verificación</a>
+          <div class="footer">
+            Si el botón no funciona, copia y pega este enlace en tu navegador:<br />
+            <a href="${resetLink}" style="color: #0ea5e9; word-break: break-all;">${resetLink}</a>
+          </div>
+        </div>
+      </body>
+    </html>`;
+
+    await db.query(
+      "UPDATE users SET código = ? WHERE Email = ?",
+      [resetCodigo, email],
+    );
+
+    console.log("tomates")
+
+   
+console.log("Email enviado con éxito: ", info.messageId);
+
+    res.status(200).json({ email });
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
+});
+
+app.post("/dobleAutenticacion", async (req, res) => {
+  try {
+    const { email } = req.body;
+
     // 1. Corregir consulta: destructuramos para obtener las filas
     const [users] = await db.query("SELECT Nombre FROM users WHERE Email = ?", [email]);
 
@@ -486,8 +606,14 @@ app.post("/dobleAutenticacion", async (req, res) => {
     const htmlCodigo = `...`; // Tu template
 
     // 5. Enviar correo con await
+    const info = await transporter.sendMail({
+      from: "marcossbarja@gmail.com",
+      to: email,
+      subject: "Código de autenticación",
+      html: htmlCodigo,
+    });
 
-    console.log("Good morning");
+    console.log("Email enviado:", info.messageId);
     
     // 6. Responder al cliente para evitar el timeout
     return res.status(200).json({ message: "Código enviado", email });
