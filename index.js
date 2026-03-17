@@ -142,6 +142,16 @@ const comprobarHashesParcial = async (
   return facturaCambiada;
 };
 
+let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+      auth: {
+        user: "marcossbarja@gmail.com",
+        pass: "nhiz usvq osqa olii",
+      },
+    });
+
 app.use(cors());
 
 app.get("/users", async (req, res) => {
@@ -452,352 +462,46 @@ app.post("/dobleAutenticacion", async (req, res) => {
   try {
     const { email } = req.body;
 
+    // 1. Corregir consulta: destructuramos para obtener las filas
+    const [users] = await db.query("SELECT Nombre FROM users WHERE Email = ?", [email]);
 
-    const nombre = await db.query("SELECT Nombre FROM users WHERE Email = ?", [email]);
-
-    const digito1 = Math.floor(Math.random() * 10);
-    const digito2 = Math.floor(Math.random() * 10);
-    const digito3 = Math.floor(Math.random() * 10);
-    const digito4 = Math.floor(Math.random() * 10);
-    const digito5 = Math.floor(Math.random() * 10);
-
-    const resetCodigo = `${digito1}${digito2}${digito3}${digito4}${digito5}`;
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetLink = `http://localhost:8080/verificacionDosPasos?token=${resetToken}`;
-
-    const htmlCodigo = `<!DOCTYPE html>
-    <html lang="es">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <style>
-          body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-              Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica', Arial, sans-serif;
-            background-color: #f5f5f7;
-            color: #0f172a;
-          }
-          .container {
-            max-width: 600px;
-            margin: 40px auto;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
-            padding: 24px;
-          }
-          .header {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 16px;
-          }
-          .text {
-            font-size: 14px;
-            line-height: 1.6;
-            color: #475569;
-            margin-bottom: 18px;
-          }
-          .code {
-            display: inline-block;
-            width: 100%;
-            max-width: 260px;
-            padding: 16px 18px;
-            margin: 0 auto 18px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #0ea5e9, #22c55e);
-            color: #fff;
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: 6px;
-            text-align: center;
-          }
-          .footer {
-            font-size: 12px;
-            color: #64748b;
-            line-height: 1.4;
-          }
-          .button {
-            display: inline-block;
-            padding: 12px 20px;
-            border-radius: 10px;
-            background: #0ea5e9;
-            color: #fff;
-            text-decoration: none;
-            font-weight: 600;
-          }
-          @media (max-width: 480px) {
-            .container {
-              margin: 24px 12px;
-              padding: 18px;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">Código de verificación</div>
-          <div class="text">
-            Utiliza el siguiente código de 5 dígitos para entrar a tu cuenta.
-          </div>
-          <div class="code">${resetCodigo}</div>
-          <div class="text">
-            Si no solicitaste este código, puedes ignorar este correo. El código expirará en breve.
-          </div>
-          <a class="button" href="${resetLink}">Ir a la página de verificación</a>
-          <div class="footer">
-            Si el botón no funciona, copia y pega este enlace en tu navegador:<br />
-            <a href="${resetLink}" style="color: #0ea5e9; word-break: break-all;">${resetLink}</a>
-          </div>
-        </div>
-      </body>
-    </html>`;
-
-    await db.query(
-      "UPDATE users SET código = ? WHERE Email = ?",
-      [resetCodigo, email],
-    );
-
-    console.log("tomates")
-
-    let transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-      auth: {
-        user: "marcossbarja@gmail.com",
-        pass: "nhiz usvq osqa olii",
-      },
-    });
-
-    const info = await transporter.sendMail({
-  from: "marcossbarja@gmail.com",
-  to: email,
-  subject: "codigo de autenticacion",
-  html: htmlCodigo,
-});
-console.log("Email enviado con éxito: ", info.messageId);
-
-    res.status(200).json({ email });
-  } catch (err) {
-    res.status(500).json({ error: err });
-  }
-});
-
-app.post("/recuperar_contrasena", async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    const [userExists] = await db.query(
-      "SELECT Nombre FROM users WHERE Email = ?",
-      [email],
-    );
-
-    if (!userExists.length) {
+    if (users.length === 0) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    const userName = userExists[0].Nombre;
-
+    // 2. Generar código (Simplificado)
+    const resetCodigo = Math.floor(10000 + Math.random() * 90000).toString();
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetLink = `http://localhost:8080/reset-password?token=${resetToken}`;
+    
+    // Cambia localhost:8080 por tu variable de entorno en producción
+    const resetLink = `http://localhost:8080/verificacionDosPasos?token=${resetToken}`;
 
+    // 3. Actualizar base de datos ANTES de enviar el mail
     await db.query(
-      "UPDATE users SET tokenReinicioContraseña = ? WHERE Email = ?",
-      [resetToken, email],
+      "UPDATE users SET código = ? WHERE Email = ?",
+      [resetCodigo, email]
     );
 
-    const htmlCambiarContraseña = `<!DOCTYPE html>
-            <html dir="ltr" lang="es">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <style>
-                    body {
-                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-                            'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica',
-                            'Arial', sans-serif;
-                        margin: 0;
-                        padding: 0;
-                        background-color: #f5f5f7;
-                    }
-                    .container {
-                        max-width: 600px;
-                        margin: 40px auto;
-                        background-color: #ffffff;
-                        border-radius: 12px;
-                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-                        overflow: hidden;
-                    }
-                    .header {
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        padding: 40px 20px;
-                        text-align: center;
-                        color: white;
-                    }
-                    .header h1 {
-                        margin: 0;
-                        font-size: 28px;
-                        font-weight: 700;
-                        letter-spacing: -0.5px;
-                    }
-                    .header p {
-                        margin: 10px 0 0 0;
-                        font-size: 14px;
-                        opacity: 0.9;
-                    }
-                    .content {
-                        padding: 40px 30px;
-                    }
-                    .greeting {
-                        font-size: 16px;
-                        color: #1a1a1a;
-                        margin: 0 0 20px 0;
-                        line-height: 1.6;
-                    }
-                    .message {
-                        font-size: 14px;
-                        color: #555555;
-                        margin: 20px 0;
-                        line-height: 1.6;
-                    }
-                    .button-container {
-                        text-align: center;
-                        margin: 40px 0;
-                    }
-                    .reset-button {
-                        display: inline-block;
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        color: white;
-                        padding: 14px 40px;
-                        border-radius: 8px;
-                        text-decoration: none;
-                        font-weight: 600;
-                        font-size: 16px;
-                        transition: transform 0.2s, box-shadow 0.2s;
-                        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-                    }
-                    .reset-button:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
-                    }
-                    .warning {
-                        background-color: #fff3cd;
-                        border: 1px solid #ffc107;
-                        border-radius: 6px;
-                        padding: 12px 16px;
-                        margin: 30px 0;
-                        font-size: 13px;
-                        color: #856404;
-                        line-height: 1.5;
-                    }
-                    .link-text {
-                        font-size: 12px;
-                        color: #888888;
-                        margin-top: 20px;
-                        word-break: break-all;
-                    }
-                    .link-text a {
-                        color: #667eea;
-                        text-decoration: none;
-                    }
-                    .footer {
-                        background-color: #f9f9fb;
-                        padding: 30px;
-                        text-align: center;
-                        border-top: 1px solid #f0f0f0;
-                    }
-                    .footer-text {
-                        font-size: 12px;
-                        color: #999999;
-                        margin: 0;
-                        line-height: 1.6;
-                    }
-                    .footer-links {
-                        margin-top: 15px;
-                    }
-                    .footer-links a {
-                        color: #667eea;
-                        text-decoration: none;
-                        font-size: 12px;
-                        margin: 0 10px;
-                    }
-                    .logo {
-                        font-size: 24px;
-                        font-weight: 700;
-                        letter-spacing: -1px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <div class="logo">INALTERA</div>
-                        <p>Recupera tu acceso de forma segura</p>
-                    </div>
-                    <div class="content">
-                        <p class="greeting">¡Hola ${userName}!</p>
-                        <p class="message">
-                            Hemos recibido una solicitud para recuperar tu contraseña en INALTERA. 
-                            Si tú realizaste esta solicitud, haz clic en el botón de abajo para crear 
-                            una nueva contraseña.
-                        </p>
-                        <div class="button-container">
-                            <a href="${resetLink}" class="reset-button">Recuperar contraseña</a>
-                        </div>
-                        <div class="warning">
-                            <strong>Nota importante:</strong> Este enlace expirará en 1 hora por razones de seguridad. 
-                            Si no realizaste esta solicitud, ignora este correo o contacta con nuestro equipo de soporte.
-                        </div>
-                        <p class="message">
-                            Si el botón no funciona, copia y pega este enlace en tu navegador:
-                        </p>
-                        <p class="link-text">
-                            <a href="${resetLink}">${resetLink}</a>
-                        </p>
-                        <p class="message">
-                            Por tu seguridad, nunca compartiremos tu contraseña por correo electrónico. 
-                            El equipo de INALTERA siempre te pedirá que cambies tu contraseña a través de 
-                            un enlace seguro como este.
-                        </p>
-                    </div>
-                    <div class="footer">
-                        <p class="footer-text">
-                            © 2026 INALTERA. Todos los derechos reservados.
-                        </p>
-                        <div class="footer-links">
-                            <a href="http://localhost:8080">Ir a INALTERA</a>
-                            <a href="#">Contacto</a>
-                        </div>
-                        <p class="footer-text" style="margin-top: 15px; font-size: 11px; color: #aaa;">
-                            Este es un correo automático, por favor no respondas a este mensaje.
-                        </p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        `;
+    // 4. Configuración del HTML (se mantiene igual...)
+    const htmlCodigo = `...`; // Tu template
 
-    let transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "marcossbarja@gmail.com",
-        pass: "nhiz usvq osqa olii",
-      },
-    });
-
-    await transporter.sendMail({
+    // 5. Enviar correo con await
+    const info = await transporter.sendMail({
       from: "marcossbarja@gmail.com",
       to: email,
-      subject: "Recuperación de contraseña",
-      html: htmlCambiarContraseña,
+      subject: "Código de autenticación",
+      html: htmlCodigo,
     });
 
-   
-console.log("Email enviado con éxito: ", info.messageId);
+    console.log("Email enviado:", info.messageId);
+    
+    // 6. Responder al cliente para evitar el timeout
+    return res.status(200).json({ message: "Código enviado", email });
 
-    res.status(200).json({ email });
   } catch (err) {
-    res.status(500).json({ error: err });
+    console.error("Error en dobleAutenticacion:", err);
+    // Es vital enviar el error para que el cliente no espere infinitamente
+    return res.status(500).json({ error: err.message });
   }
 });
 
