@@ -150,9 +150,7 @@ let transporter = nodemailer.createTransport({
         user: "marcossbarja@gmail.com",
         pass: "nhiz usvq osqa olii",
       },
-      tls: {
-    rejectUnauthorized: false
-  }
+      
     });
 
 app.use(cors());
