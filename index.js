@@ -486,14 +486,8 @@ app.post("/dobleAutenticacion", async (req, res) => {
     const htmlCodigo = `...`; // Tu template
 
     // 5. Enviar correo con await
-    const info = await transporter.sendMail({
-      from: "marcossbarja@gmail.com",
-      to: email,
-      subject: "Código de autenticación",
-      html: htmlCodigo,
-    });
 
-    console.log("Email enviado:", info.messageId);
+    console.log("Good morning");
     
     // 6. Responder al cliente para evitar el timeout
     return res.status(200).json({ message: "Código enviado", email });
