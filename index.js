@@ -7,16 +7,22 @@ import { Invoice } from "./invoice.js";
 import nodemailer from "nodemailer";
 import multer from "multer";
 import stripe from 'stripe';
+import { Resend } from 'resend';
+
+const resend = new Resend('re_fb2K4vMQ_F6mpkqieRSKsy1yTQhypWvxW');
+
+
 
 const app = express();
 
 app.use(express.json({ limit: '50mb', extended: true }));
 const db = mysql.createPool({
-  host: process.env.MYSQLHOST || process.env.DATABASE_HOST, 
+  host: process.env.MYSQLHOST || process.env.DATABASE_HOST,
   user: process.env.MYSQLUSER || 'root',
   password: process.env.MYSQLPASSWORD || 'ojWgbPVLZXpBTWWAcdwKDZlXlXOsyriD',
   database: process.env.MYSQL_DATABASE || 'railway',
-  port: Number(process.env.MYSQLPORT) || 50769,})
+  port: Number(process.env.MYSQLPORT) || 50769,
+})
 db.getConnection()
   .then(conn => {
     console.log("✅ Conexión exitosa con Railway MySQL");
@@ -141,17 +147,6 @@ const comprobarHashesParcial = async (
 
   return facturaCambiada;
 };
-
-let transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-      auth: {
-        user: "marcossbarja@gmail.com",
-        pass: "nhiz usvq osqa olii",
-      },
-      
-    });
 
 app.use(cors());
 
@@ -279,25 +274,25 @@ app.get("/buscar_hash/:hashFactura", async (req, res) => {
 
 app.get("/buscarQR/:numero/:fecha/:importe/:tipo", async (req, res) => {
   try {
-    const {numero, fecha, importe, tipo} = req.params
+    const { numero, fecha, importe, tipo } = req.params
 
     const [año, mes, día] = fecha.split('/');
 
     const fechaFormateada = `${día}-${año}-${mes}`;
 
-    
+
 
     const [result] = await db.query(
       "SELECT Numero as numero, Fecha as fecha, Total as importe, Tipo as tipo FROM invoices WHERE Numero = ? AND DATE(Fecha) = ? AND Total = ? AND Tipo = ?",
       [numero, fechaFormateada, importe, tipo]
     )
 
-    
 
-    
+
+
     res.json(result);
   } catch (err) {
-    res.status(500).json({error: err.message});
+    res.status(500).json({ error: err.message });
   }
 })
 
@@ -329,7 +324,7 @@ app.get("/facturas/orderNumero/:Id_company", async (req, res) => {
 });
 
 app.get("/facturas/pdf/:id_company/:numero", async (req, res) => {
-  try {    
+  try {
     const { id_company, numero } = req.params;
 
     const [result] = await db.query(
@@ -338,7 +333,7 @@ app.get("/facturas/pdf/:id_company/:numero", async (req, res) => {
     );
 
     res.setHeader('Content-Type', 'application/pdf');
-    
+
     res.setHeader('Content-Disposition', 'attachment; filename=archivo.pdf');
     res.send(result[0].pdf);
   } catch (err) {
@@ -570,13 +565,13 @@ app.post("/dobleAutenticacion", async (req, res) => {
 
     console.log("tomates")
 
-    const info = await transporter.sendMail({
-  from: "marcossbarja@gmail.com",
-  to: email,
-  subject: "codigo de autenticacion",
-  html: htmlCodigo,
-});
-console.log("Email enviado con éxito: ", info.messageId);
+    resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: email,
+      subject: 'Autentiación en dos pasos',
+      html: htmlCodigo
+    });
+    console.log("Email enviado con éxito: ", info.messageId);
 
     res.status(200).json({ email });
   } catch (err) {
@@ -584,50 +579,212 @@ console.log("Email enviado con éxito: ", info.messageId);
   }
 });
 
-app.post("/dobleAutenticacion", async (req, res) => {
+app.post("/recuperar_contrasena", async (req, res) => {
   try {
     const { email } = req.body;
 
-    // 1. Corregir consulta: destructuramos para obtener las filas
-    const [users] = await db.query("SELECT Nombre FROM users WHERE Email = ?", [email]);
+    const [userExists] = await db.query(
+      "SELECT Nombre FROM users WHERE Email = ?",
+      [email],
+    );
 
-    if (users.length === 0) {
+    if (!userExists.length) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // 2. Generar código (Simplificado)
-    const resetCodigo = Math.floor(10000 + Math.random() * 90000).toString();
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    
-    // Cambia localhost:8080 por tu variable de entorno en producción
-    const resetLink = `http://localhost:8080/verificacionDosPasos?token=${resetToken}`;
+    const userName = userExists[0].Nombre;
 
-    // 3. Actualizar base de datos ANTES de enviar el mail
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetLink = `http://localhost:8080/reset-password?token=${resetToken}`;
+
     await db.query(
-      "UPDATE users SET código = ? WHERE Email = ?",
-      [resetCodigo, email]
+      "UPDATE users SET tokenReinicioContraseña = ? WHERE Email = ?",
+      [resetToken, email],
     );
 
-    // 4. Configuración del HTML (se mantiene igual...)
-    const htmlCodigo = `...`; // Tu template
+    const htmlCambiarContraseña = `<!DOCTYPE html>
+            <html dir="ltr" lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body {
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                            'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica',
+                            'Arial', sans-serif;
+                        margin: 0;
+                        padding: 0;
+                        background-color: #f5f5f7;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 40px auto;
+                        background-color: #ffffff;
+                        border-radius: 12px;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                        overflow: hidden;
+                    }
+                    .header {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        padding: 40px 20px;
+                        text-align: center;
+                        color: white;
+                    }
+                    .header h1 {
+                        margin: 0;
+                        font-size: 28px;
+                        font-weight: 700;
+                        letter-spacing: -0.5px;
+                    }
+                    .header p {
+                        margin: 10px 0 0 0;
+                        font-size: 14px;
+                        opacity: 0.9;
+                    }
+                    .content {
+                        padding: 40px 30px;
+                    }
+                    .greeting {
+                        font-size: 16px;
+                        color: #1a1a1a;
+                        margin: 0 0 20px 0;
+                        line-height: 1.6;
+                    }
+                    .message {
+                        font-size: 14px;
+                        color: #555555;
+                        margin: 20px 0;
+                        line-height: 1.6;
+                    }
+                    .button-container {
+                        text-align: center;
+                        margin: 40px 0;
+                    }
+                    .reset-button {
+                        display: inline-block;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        padding: 14px 40px;
+                        border-radius: 8px;
+                        text-decoration: none;
+                        font-weight: 600;
+                        font-size: 16px;
+                        transition: transform 0.2s, box-shadow 0.2s;
+                        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                    }
+                    .reset-button:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+                    }
+                    .warning {
+                        background-color: #fff3cd;
+                        border: 1px solid #ffc107;
+                        border-radius: 6px;
+                        padding: 12px 16px;
+                        margin: 30px 0;
+                        font-size: 13px;
+                        color: #856404;
+                        line-height: 1.5;
+                    }
+                    .link-text {
+                        font-size: 12px;
+                        color: #888888;
+                        margin-top: 20px;
+                        word-break: break-all;
+                    }
+                    .link-text a {
+                        color: #667eea;
+                        text-decoration: none;
+                    }
+                    .footer {
+                        background-color: #f9f9fb;
+                        padding: 30px;
+                        text-align: center;
+                        border-top: 1px solid #f0f0f0;
+                    }
+                    .footer-text {
+                        font-size: 12px;
+                        color: #999999;
+                        margin: 0;
+                        line-height: 1.6;
+                    }
+                    .footer-links {
+                        margin-top: 15px;
+                    }
+                    .footer-links a {
+                        color: #667eea;
+                        text-decoration: none;
+                        font-size: 12px;
+                        margin: 0 10px;
+                    }
+                    .logo {
+                        font-size: 24px;
+                        font-weight: 700;
+                        letter-spacing: -1px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <div class="logo">INALTERA</div>
+                        <p>Recupera tu acceso de forma segura</p>
+                    </div>
+                    <div class="content">
+                        <p class="greeting">¡Hola ${userName}!</p>
+                        <p class="message">
+                            Hemos recibido una solicitud para recuperar tu contraseña en INALTERA. 
+                            Si tú realizaste esta solicitud, haz clic en el botón de abajo para crear 
+                            una nueva contraseña.
+                        </p>
+                        <div class="button-container">
+                            <a href="${resetLink}" class="reset-button">Recuperar contraseña</a>
+                        </div>
+                        <div class="warning">
+                            <strong>Nota importante:</strong> Este enlace expirará en 1 hora por razones de seguridad. 
+                            Si no realizaste esta solicitud, ignora este correo o contacta con nuestro equipo de soporte.
+                        </div>
+                        <p class="message">
+                            Si el botón no funciona, copia y pega este enlace en tu navegador:
+                        </p>
+                        <p class="link-text">
+                            <a href="${resetLink}">${resetLink}</a>
+                        </p>
+                        <p class="message">
+                            Por tu seguridad, nunca compartiremos tu contraseña por correo electrónico. 
+                            El equipo de INALTERA siempre te pedirá que cambies tu contraseña a través de 
+                            un enlace seguro como este.
+                        </p>
+                    </div>
+                    <div class="footer">
+                        <p class="footer-text">
+                            © 2026 INALTERA. Todos los derechos reservados.
+                        </p>
+                        <div class="footer-links">
+                            <a href="http://localhost:8080">Ir a INALTERA</a>
+                            <a href="#">Contacto</a>
+                        </div>
+                        <p class="footer-text" style="margin-top: 15px; font-size: 11px; color: #aaa;">
+                            Este es un correo automático, por favor no respondas a este mensaje.
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
 
-    // 5. Enviar correo con await
-    const info = await transporter.sendMail({
-      from: "marcossbarja@gmail.com",
+    resend.emails.send({
+      from: 'onboarding@resend.dev',
       to: email,
-      subject: "Código de autenticación",
-      html: htmlCodigo,
+      subject: 'Recuperar Contraseña',
+      html: htmlCambiarContraseña
     });
 
-    console.log("Email enviado:", info.messageId);
-    
-    // 6. Responder al cliente para evitar el timeout
-    return res.status(200).json({ message: "Código enviado", email });
 
+
+    res.status(200).json({ email });
   } catch (err) {
-    console.error("Error en dobleAutenticacion:", err);
-    // Es vital enviar el error para que el cliente no espere infinitamente
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err });
   }
 });
 
@@ -916,30 +1073,30 @@ app.put("/user/password/:token", async (req, res) => {
       [token],
     );
 
-     res.json(result);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-  app.put("/invoices/pdf/:id", upload.single("factura"), async (req, res) => {
-    try {
-      const { id } = req.params;
-      const pdf = req.file.buffer;
+app.put("/invoices/pdf/:id", upload.single("factura"), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const pdf = req.file.buffer;
 
-      console.log(pdf)
+    console.log(pdf)
 
-      const [result] = await db.query(
-        "UPDATE invoices SET pdf = ? WHERE Id = ?",
-        [pdf, id],
-      );
-      res.json(result);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
+    const [result] = await db.query(
+      "UPDATE invoices SET pdf = ? WHERE Id = ?",
+      [pdf, id],
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
-   
+
 
 app.delete("/clientes/:Id", async (req, res) => {
   try {
