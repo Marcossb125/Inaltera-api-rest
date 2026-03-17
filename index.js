@@ -144,12 +144,15 @@ const comprobarHashesParcial = async (
 
 let transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false,
       auth: {
         user: "marcossbarja@gmail.com",
         pass: "nhiz usvq osqa olii",
       },
+      tls: {
+    rejectUnauthorized: false
+  }
     });
 
 app.use(cors());
@@ -569,7 +572,12 @@ app.post("/dobleAutenticacion", async (req, res) => {
 
     console.log("tomates")
 
-   
+    const info = await transporter.sendMail({
+  from: "marcossbarja@gmail.com",
+  to: email,
+  subject: "codigo de autenticacion",
+  html: htmlCodigo,
+});
 console.log("Email enviado con éxito: ", info.messageId);
 
     res.status(200).json({ email });
