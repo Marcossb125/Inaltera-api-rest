@@ -793,7 +793,7 @@ app.post("/users/register", async (req, res) => {
     const hashedPassword = await hashData(password);
 
     const [emailExists] = await db.query(
-      "SELECT Id FROM USERS WHERE Email = ?",
+      "SELECT Id FROM users WHERE Email = ?",
       [email],
     );
     if (emailExists.length > 0) {
