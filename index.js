@@ -54,7 +54,7 @@ console.log("toy aqui")
 const nuevaFactura = async (factura = Invoice, Id_company) => {
   try {
     const response = await fetch(
-      "http://inaltera-api-rest-production.up.railway.app/users/facturas/" + Id_company,
+      "http://inaltera-api-rest-production.up.railway.apps/facturas/" + Id_company,
     );
     const ultimaFactura = await response.json();
 
