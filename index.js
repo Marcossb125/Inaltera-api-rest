@@ -58,9 +58,11 @@ const nuevaFactura = async (factura = Invoice, Id_company) => {
       [Id_company],
     );;
 
-    const ultimaFactura = await response.json();
+    const ultimaFactura = await JSON.parse(response);
 
     if (ultimaFactura.length > 1) {
+      console.log(hashFactura(factura,
+        ultimaFactura[ultimaFactura.length - 2].hashFactura,))
       return await hashFactura(
         factura,
         ultimaFactura[ultimaFactura.length - 2].hashFactura,
