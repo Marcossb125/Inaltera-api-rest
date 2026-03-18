@@ -1017,11 +1017,11 @@ app.put("/companies/:id_company/clientes/:id", async (req, res) => {
 app.put("/invoices/hashFactura/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("holita")
     const [data] = await db.query(
       "SELECT Id_company, Id_cliente, Fecha, Tipo, Numero, Total, Estado, FormaPago, ClienteNif, ClienteDireccion, ClienteNombre, Observaciones FROM invoices where Id = ?",
       [id],
     );
+    console.log("adios")
     let factura = new Invoice(
       data[0].Id_company,
       data[0].Id_cliente,
@@ -1036,8 +1036,10 @@ app.put("/invoices/hashFactura/:id", async (req, res) => {
       data[0].FormaPago,
       data[0].Observaciones,
     );
-    const hash = await nuevaFactura(factura, data[0].Id_company);
 
+    console.log("pepito")
+    const hash = await nuevaFactura(factura, data[0].Id_company);
+    console.log(hash)
     const [result] = await db.query(
       "UPDATE invoices SET hashFactura = ? WHERE Id = ?",
       [hash, id],
