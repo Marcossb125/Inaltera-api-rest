@@ -54,7 +54,7 @@ console.log("toy aqui")
 const nuevaFactura = async (factura = Invoice, Id_company) => {
   try {
     const response = await fetch(
-      "http://localhost:3000/facturas/" + Id_company,
+      "http://inaltera-api-rest-production.up.railway.app/users/facturas/" + Id_company,
     );
     const ultimaFactura = await response.json();
 
@@ -85,10 +85,10 @@ const comprobarHashesParcial = async (
   Id_company,
 ) => {
   const responseHashes = await fetch(
-    "http://localhost:3000/facturas/hashFactura/orderNumero/" + Id_company,
+    "http://inaltera-api-rest-production.up.railway.app/users/facturas/hashFactura/orderNumero/" + Id_company,
   );
   const response = await fetch(
-    "http://localhost:3000/facturas/orderNumero/" + Id_company,
+    "http://inaltera-api-rest-production.up.railway.app/users/facturas/orderNumero/" + Id_company,
   );
   const facturas = await response.json();
   const hashes = await responseHashes.json();
