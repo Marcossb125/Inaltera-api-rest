@@ -57,7 +57,7 @@ const nuevaFactura = async (factura = Invoice, Id_company) => {
       "SELECT Id as id, Id_company as id_company, Id_cliente as id_cliente, Fecha as fecha, Tipo as tipo, Numero as numero, Total as total, Estado as estado, FormaPago as formaPago, ClienteNombre as clienteNombre, ClienteNif as clienteNif, ClienteDireccion as clienteDireccion, Observaciones as observaciones, hashFactura from invoices WHERE Id_company = ?",
       [Id_company],
     );;
-    
+
     const ultimaFactura = await response.json();
 
     if (ultimaFactura.length > 1) {
@@ -67,6 +67,7 @@ const nuevaFactura = async (factura = Invoice, Id_company) => {
       );
     } else {
       const hash = await hashFactura(factura, null);
+      console.log(hash)
       return hash;
     }
   } catch (err) {
