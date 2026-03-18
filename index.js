@@ -47,17 +47,8 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const hashData = async (text) => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(text);
 
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-
-  return hashHex;
+  return crypto.createHash('sha256').update(text).digest('hex');
 };
 
 const nuevaFactura = async (factura = Invoice, Id_company) => {
