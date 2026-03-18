@@ -47,7 +47,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const hashData = async (text) => {
-
+console.log("toy aqui")
   return crypto.createHash('sha256').update(text).digest('hex');
 };
 
