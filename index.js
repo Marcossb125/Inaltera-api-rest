@@ -53,23 +53,18 @@ console.log("toy aqui")
 
 const nuevaFactura = async (factura = Invoice, Id_company) => {
   try {
-    const [response] = await db.query(
-      "SELECT Id as id, Id_company as id_company, Id_cliente as id_cliente, Fecha as fecha, Tipo as tipo, Numero as numero, Total as total, Estado as estado, FormaPago as formaPago, ClienteNombre as clienteNombre, ClienteNif as clienteNif, ClienteDireccion as clienteDireccion, Observaciones as observaciones, hashFactura from invoices WHERE Id_company = ?",
-      [Id_company],
-    );;
-
-    const ultimaFactura = await JSON.parse(response);
+    const response = await fetch(
+      "http://inaltera-api-rest-production.up.railway.app/facturas/" + Id_company,
+    );
+    const ultimaFactura = await response.json();
 
     if (ultimaFactura.length > 1) {
-      console.log(hashFactura(factura,
-        ultimaFactura[ultimaFactura.length - 2].hashFactura,))
       return await hashFactura(
         factura,
         ultimaFactura[ultimaFactura.length - 2].hashFactura,
       );
     } else {
       const hash = await hashFactura(factura, null);
-      console.log(hash)
       return hash;
     }
   } catch (err) {
@@ -1019,11 +1014,11 @@ app.put("/companies/:id_company/clientes/:id", async (req, res) => {
 app.put("/invoices/hashFactura/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("holita")
     const [data] = await db.query(
       "SELECT Id_company, Id_cliente, Fecha, Tipo, Numero, Total, Estado, FormaPago, ClienteNif, ClienteDireccion, ClienteNombre, Observaciones FROM invoices where Id = ?",
       [id],
     );
-    console.log("adios")
     let factura = new Invoice(
       data[0].Id_company,
       data[0].Id_cliente,
@@ -1038,10 +1033,8 @@ app.put("/invoices/hashFactura/:id", async (req, res) => {
       data[0].FormaPago,
       data[0].Observaciones,
     );
-
-    console.log("pepito")
     const hash = await nuevaFactura(factura, data[0].Id_company);
-    console.log(hash)
+
     const [result] = await db.query(
       "UPDATE invoices SET hashFactura = ? WHERE Id = ?",
       [hash, id],

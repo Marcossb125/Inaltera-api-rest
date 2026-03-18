@@ -9,8 +9,9 @@ Content-Type: application/json
     "email": "marcossbarja@gmail.com"
 }
 
+###
 
-GET http://localhost:3000/users/2 HTTP/1.1
+GET http://inaltera-api-rest-production.up.railway.app/facturas/23  HTTP/1.1
 
 ###
 
