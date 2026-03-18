@@ -53,9 +53,11 @@ console.log("toy aqui")
 
 const nuevaFactura = async (factura = Invoice, Id_company) => {
   try {
-    const response = await fetch(
-      "http://inaltera-api-rest-production.up.railway.apps/facturas/" + Id_company,
-    );
+    const [response] = await db.query(
+      "SELECT Id as id, Id_company as id_company, Id_cliente as id_cliente, Fecha as fecha, Tipo as tipo, Numero as numero, Total as total, Estado as estado, FormaPago as formaPago, ClienteNombre as clienteNombre, ClienteNif as clienteNif, ClienteDireccion as clienteDireccion, Observaciones as observaciones, hashFactura from invoices WHERE Id_company = ?",
+      [Id_company],
+    );;
+    
     const ultimaFactura = await response.json();
 
     if (ultimaFactura.length > 1) {
