@@ -419,7 +419,7 @@ app.post('/create-checkout-session/:subscripcion', async (req, res) => {
     console.log(subs)
 
     if (subs === "Profesional") {
-      session = await stripe.checkout.sessions.create({
+      session = await stripep.checkout.sessions.create({
         line_items: [
           {
             price: 'price_1T4KMWKB99iHhiNSCvRoeQXQ',
@@ -431,7 +431,7 @@ app.post('/create-checkout-session/:subscripcion', async (req, res) => {
         success_url: `${YOUR_DOMAIN}/payment-success?success=true&plan=${encodeURIComponent(subs)}`,
       });
     } else {
-      session = await stripe.checkout.sessions.create({
+      session = await stripep.checkout.sessions.create({
         line_items: [
           {
             price: 'price_1T4KLfKB99iHhiNSzspsuqx3',
