@@ -43,7 +43,7 @@ if (!stripeKey) {
 }
 
 const stripep = new stripe(stripeKey);
-const YOUR_DOMAIN = "http://localhost:8000"
+const YOUR_DOMAIN = "http://localhost:8080"
 
 
 const storage = multer.memoryStorage();
