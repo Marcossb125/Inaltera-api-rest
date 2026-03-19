@@ -826,7 +826,7 @@ app.post("/users/register", async (req, res) => {
       return res.status(400).json({ error: "El email ya está registrado" });
     }
     const [result] = await db.query(
-      "INSERT INTO users (Email, Password, Nombre VALUES (?, ?, ?)",
+      "INSERT INTO users (Email, Password, Nombre) VALUES (?, ?, ?)",
       [email, hashedPassword, nombre],
     );
     const [company] = await db.query(
