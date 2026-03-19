@@ -780,6 +780,23 @@ app.post("/recuperar_contrasena", async (req, res) => {
   }
 });
 
+app.post("/invoices/pdf/:Id_factura", upload.single("factura"), async (req, res) => {
+  try {
+    const { Id_factura } = req.params;
+    const pdf = req.file.buffer;
+
+    console.log(pdf)
+
+    const [result] = await db.query(
+      "INSERT INTO pdfs (Id_factura pdf,) VALUES (?, ?)",
+      [Id_factura, pdf],
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+})
+
 app.post("/users/register", async (req, res) => {
   try {
     const { email, password, nombre } = req.body;
@@ -1072,22 +1089,6 @@ app.put("/user/password/:token", async (req, res) => {
   }
 });
 
-app.put("/invoices/pdf/:id", upload.single("factura"), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const pdf = req.file.buffer;
-
-    console.log(pdf)
-
-    const [result] = await db.query(
-      "UPDATE invoices SET pdf = ? WHERE Id = ?",
-      [pdf, id],
-    );
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 
 
