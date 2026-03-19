@@ -303,6 +303,19 @@ app.get("/facturas/:Id_company", async (req, res) => {
   }
 });
 
+app.get("/facturas/Id/:Id_company/:Numero", async (req, res) => {
+  try {
+    const { Id_company, Numero } = req.params;
+    const [result] = await db.query(
+      "SELECT Id as id from invoices WHERE Id_company = ? AND Numero = ?",
+      [Id_company, Numero],
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get("/facturas/orderNumero/:Id_company", async (req, res) => {
   try {
     const { Id_company } = req.params;
@@ -813,7 +826,7 @@ app.post("/users/register", async (req, res) => {
       return res.status(400).json({ error: "El email ya está registrado" });
     }
     const [result] = await db.query(
-      "INSERT INTO users (Email, Password, Nombre,) VALUES (?, ?, ?)",
+      "INSERT INTO users (Email, Password, Nombre VALUES (?, ?, ?)",
       [email, hashedPassword, nombre],
     );
     const [company] = await db.query(
