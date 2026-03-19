@@ -881,7 +881,7 @@ app.post("/invoices", async (req, res) => {
     const hash = null;
 
     const [result] = await db.query(
-      "INSERT INTO invoices (Id_company, Fecha, Numero, Id_cliente, Total, Estado, Tipo, FormaPago, ClienteNombre, ClienteNif, ClienteDireccion, Observaciones, hashFactura) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO invoices (Id_company, Fecha, Numero, Id_cliente, Total, Estado, Tipo, FormaPago, ClienteNombre, ClienteNif, ClienteDireccion, Observaciones, hashFactura) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
         id_company, fecha, numero, id_cliente, total, estado, tipo, formaPago, clienteNombre, clienteNif, clienteDireccion, observaciones, hash
       ],
