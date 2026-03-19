@@ -416,6 +416,8 @@ app.post('/create-checkout-session/:subscripcion', async (req, res) => {
     let session;
     const subs = req.params.subscripcion;
 
+    console.log(subs)
+
     if (subs === "Profesional") {
       session = await stripe.checkout.sessions.create({
         line_items: [
