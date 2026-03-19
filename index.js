@@ -42,7 +42,8 @@ if (!stripeKey) {
   process.exit(1);
 }
 
-const stripe = new stripe(stripeKey);
+const stripep = new stripe(stripeKey);
+const YOUR_DOMAIN = "http://localhost:8000"
 
 
 const storage = multer.memoryStorage();
