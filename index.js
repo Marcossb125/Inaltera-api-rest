@@ -42,7 +42,7 @@ if (!stripeKey) {
   process.exit(1);
 }
 
-const stripe = new Stripe(stripeKey);
+const stripe = new stripe(stripeKey);
 
 
 const storage = multer.memoryStorage();
