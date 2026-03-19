@@ -317,13 +317,13 @@ app.get("/facturas/orderNumero/:Id_company", async (req, res) => {
   }
 });
 
-app.get("/facturas/pdf/:id_company/:numero", async (req, res) => {
+app.get("/facturas/pdf/:Id_factura", async (req, res) => {
   try {
-    const { id_company, numero } = req.params;
+    const { Id_factura } = req.params;
 
     const [result] = await db.query(
-      "SELECT pdf from invoices WHERE Id_company = ? AND Numero = ?",
-      [id_company, numero],
+      "SELECT pdf from pdfs WHERE Id_factura = ?",
+      [Id_factura],
     );
 
     res.setHeader('Content-Type', 'application/pdf');
