@@ -43,7 +43,7 @@ if (!stripeKey) {
 }
 
 const stripep = new stripe(stripeKey);
-const YOUR_DOMAIN = "http://localhost:8080"
+const YOUR_DOMAIN = "https://inaltera-your-trusted-seal.lovable.app"
 
 
 const storage = multer.memoryStorage();
@@ -475,7 +475,7 @@ app.post("/dobleAutenticacion", async (req, res) => {
 
     const resetCodigo = `${digito1}${digito2}${digito3}${digito4}${digito5}`;
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetLink = `http://localhost:8080/verificacionDosPasos?token=${resetToken}`;
+    const resetLink = `https://inaltera-your-trusted-seal.lovable.app/verificacionDosPasos?token=${resetToken}`;
 
     const htmlCodigo = `<!DOCTYPE html>
     <html lang="es">
@@ -600,7 +600,7 @@ app.post("/recuperar_contrasena", async (req, res) => {
     const userName = userExists[0].Nombre;
 
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetLink = `http://localhost:8080/reset-password?token=${resetToken}`;
+    const resetLink = `https://inaltera-your-trusted-seal.lovable.app/reset-password?token=${resetToken}`;
 
     await db.query(
       "UPDATE users SET tokenReinicioContraseña = ? WHERE Email = ?",
@@ -766,7 +766,7 @@ app.post("/recuperar_contrasena", async (req, res) => {
                             © 2026 INALTERA. Todos los derechos reservados.
                         </p>
                         <div class="footer-links">
-                            <a href="http://localhost:8080">Ir a INALTERA</a>
+                            <a href="https://inaltera-your-trusted-seal.lovable.app/">Ir a INALTERA</a>
                             <a href="#">Contacto</a>
                         </div>
                         <p class="footer-text" style="margin-top: 15px; font-size: 11px; color: #aaa;">
