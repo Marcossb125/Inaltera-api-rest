@@ -801,7 +801,7 @@ app.post("/invoices/pdf/:Id_factura", upload.single("factura"), async (req, res)
     console.log(pdf)
 
     const [result] = await db.query(
-      "INSERT INTO pdfs (Id_factura pdf,) VALUES (?, ?)",
+      "INSERT INTO pdfs (Id_factura, pdf) VALUES (?, ?)",
       [Id_factura, pdf],
     );
     res.json(result);
