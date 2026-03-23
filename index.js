@@ -268,17 +268,13 @@ app.get("/buscar_hash/:hashFactura", async (req, res) => {
 
 app.get("/buscarQR/:numero/:importe/:tipo", async (req, res) => {
   try {
-    const { numero, fecha, importe, tipo } = req.params
-
-    const [año, mes, día] = fecha.split('/');
-
-    const fechaFormateada = `${día}-${año}-${mes}`;
+    const { numero, importe, tipo } = req.params
 
 
 
     const [result] = await db.query(
-      "SELECT Numero as numero, Fecha as fecha, Total as importe, Tipo as tipo FROM invoices WHERE Numero = ? AND DATE(Fecha) = ? AND Total = ? AND Tipo = ?",
-      [numero, fechaFormateada, importe, tipo]
+      "SELECT Numero as numero, Fecha as fecha, Total as importe, Tipo as tipo FROM invoices WHERE Numero = ? AND Total = ? AND Tipo = ?",
+      [numero, importe, tipo]
     )
 
 
