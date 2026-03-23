@@ -266,7 +266,7 @@ app.get("/buscar_hash/:hashFactura", async (req, res) => {
   }
 });
 
-app.get("/buscarQR/:numero/:fecha/:importe/:tipo", async (req, res) => {
+app.get("/buscarQR/:numero/:importe/:tipo", async (req, res) => {
   try {
     const { numero, fecha, importe, tipo } = req.params
 
