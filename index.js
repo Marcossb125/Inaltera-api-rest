@@ -270,6 +270,8 @@ app.get("/buscarQR/:numero/:importe/:tipo", async (req, res) => {
   try {
     const { numero, importe, tipo } = req.params
 
+    console.log (numero + "," + importe + "," + tipo)
+
 
 
     const [result] = await db.query(
