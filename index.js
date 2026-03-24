@@ -50,7 +50,6 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const hashData = async (text) => {
-console.log("toy aqui")
   return crypto.createHash('sha256').update(text).digest('hex');
 };
 
@@ -439,7 +438,7 @@ app.post('/create-checkout-session/:subscripcion', async (req, res) => {
         ],
 
         mode: 'subscription',
-        success_url: `${YOUR_DOMAIN}/payment-success?success=true&plan=${encodeURIComponent(subs)}`,
+        success_url: `http://localhost:8080//payment-success?success=true&plan=${encodeURIComponent(subs)}`,
       });
     } else {
       session = await stripep.checkout.sessions.create({
