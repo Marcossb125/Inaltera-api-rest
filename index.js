@@ -438,7 +438,7 @@ app.post('/create-checkout-session/:subscripcion', async (req, res) => {
         ],
 
         mode: 'subscription',
-        success_url: `http://localhost:8080//payment-success?success=true&plan=${encodeURIComponent(subs)}`,
+        success_url: `http://localhost:8080/payment-success?success=true&plan=${encodeURIComponent(subs)}`,
       });
     } else {
       session = await stripep.checkout.sessions.create({
